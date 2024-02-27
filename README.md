@@ -1,0 +1,3 @@
+This repository contains a group project for my ST207 Databases module. 
+This project aims to construct an efficient relational database application to support in-depth analysis based on the data from the popular online dating app OkCupid. In our report, we have downloaded a comprehensive dataset from Kaggle, featuring detailed user profiles and preferences, and we also generated some synthetic data as a complement to our real datasets, to better demonstrate the completeness of this database function. This dataset will serve as the core of our database, enabling us to construct a multi-faceted picture of the user base.
+The Group11Report_datingapp.pdf 
