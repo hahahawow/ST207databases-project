@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/linyujia/Desktop/dating_app.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2347"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,5:mainBlock"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">SELECT user_id, user_name, most_messaged_user_id, most_messaged_user_name, MAX(message_count) AS max_messages
+FROM (
+    SELECT p1.user_id AS user_id, 
+           p1.name AS user_name, 
+           p2.user_id AS most_messaged_user_id,
+           p2.name AS most_messaged_user_name, 
+           COUNT(me.message_id) AS message_count
+    FROM match m
+    JOIN message me ON m.match_id = me.match_id
+    JOIN profile p1 ON m.user_id_1 = p1.user_id
+    JOIN profile p2 ON m.user_id_2 = p2.user_id
+    GROUP BY m.user_id_1, m.user_id_2
+    UNION ALL
+    SELECT p1.user_id AS user_id, 
+           p1.name AS user_name, 
+           p2.user_id AS most_messaged_user_id,
+           p2.name AS most_messaged_user_name, 
+           COUNT(me.message_id) AS message_count
+    FROM match m
+    JOIN message me ON m.match_id = me.match_id
+    JOIN profile p1 ON m.user_id_2 = p1.user_id
+    JOIN profile p2 ON m.user_id_1 = p2.user_id
+    GROUP BY m.user_id_2, m.user_id_1
+) AS combined
+GROUP BY user_id
+ORDER BY user_id;</sql><current_tab id="0"/></tab_sql></sqlb_project>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="/Users/linyujia/Desktop/dating_app.db" readonly="1" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2347"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,5:mainBlock"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Block" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="53"/><column index="2" value="69"/><column index="3" value="65"/><column index="4" value="234"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Match" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="3" mode="0"/></sort><column_widths><column index="1" value="56"/><column index="2" value="60"/><column index="3" value="62"/><column index="4" value="121"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Membership_order" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="54"/><column index="2" value="49"/><column index="3" value="67"/><column index="4" value="122"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Message" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort><column index="3" mode="1"/></sort><column_widths><column index="1" value="70"/><column index="2" value="56"/><column index="3" value="62"/><column index="4" value="68"/><column index="5" value="300"/><column index="6" value="121"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Preference" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="49"/><column index="2" value="104"/><column index="3" value="27"/><column index="4" value="41"/><column index="5" value="69"/><column index="6" value="63"/><column index="7" value="68"/><column index="8" value="64"/><column index="9" value="79"/><column index="10" value="88"/><column index="11" value="70"/><column index="12" value="161"/><column index="13" value="78"/><column index="14" value="137"/><column index="15" value="91"/><column index="16" value="69"/><column index="17" value="68"/><column index="18" value="124"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Profile" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="49"/><column index="2" value="114"/><column index="3" value="26"/><column index="4" value="27"/><column index="5" value="90"/><column index="6" value="41"/><column index="7" value="69"/><column index="8" value="99"/><column index="9" value="60"/><column index="10" value="64"/><column index="11" value="79"/><column index="12" value="300"/><column index="13" value="174"/><column index="14" value="161"/><column index="15" value="154"/><column index="16" value="143"/><column index="17" value="204"/><column index="18" value="220"/><column index="19" value="300"/><column index="20" value="124"/><column index="21" value="119"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="0">-- Counting number of user registrations each year
+
+SELECT 
+    strftime('%Y', time) AS registration_year, 
+    COUNT(user_id) AS user_count
+FROM 
+    Profile
+GROUP BY 
+    registration_year
+ORDER BY 
+    registration_year;
+</sql><sql name="1">-- obtaining insight that, over years, what the sexual orientations of the users are like
+
+SELECT 
+    registration_year,
+    sexual_orientation,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY registration_year), 2) AS percentage_orientation
+FROM (
+    SELECT 
+        strftime('%Y', P.time) AS registration_year,
+        Pref.sexual_orientation
+    FROM 
+        Profile P
+    JOIN 
+        Preference Pref ON P.user_id = Pref.user_id
+)
+GROUP BY 
+    registration_year, sexual_orientation
+ORDER BY 
+    registration_year, sexual_orientation;
+</sql><sql name="2">-- obtaining insight that, over years, what the education preference of the users are like
+
+SELECT 
+    registration_year,
+    education,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY registration_year), 2) AS percentage_education
+FROM (
+    SELECT 
+        strftime('%Y', P.time) AS registration_year,
+        Pref.education
+    FROM 
+        Profile P
+    JOIN 
+        Preference Pref ON P.user_id = Pref.user_id
+)
+GROUP BY 
+    registration_year, education
+ORDER BY 
+    registration_year, education;
+</sql><sql name="3">-- obtaining insight that, over years, what is the average age preference of the registered users
+
+SELECT 
+    registration_year,
+    ROUND(AVG(age), 2) AS average_age_preference
+FROM (
+    SELECT 
+        strftime('%Y', P.time) AS registration_year,
+        Pref.age
+    FROM 
+        Profile P
+    JOIN 
+        Preference Pref ON P.user_id = Pref.user_id
+)
+GROUP BY 
+    registration_year
+ORDER BY 
+    registration_year;</sql><sql name="4">-- obtaining insight that, over years, what the children preference of the users are like
+
+SELECT 
+    strftime('%Y', Profile.time) AS registration_year,
+    CASE 
+        WHEN Preference.children ='want kids' THEN 'Want Kids'
+        WHEN Preference.children = 'do not want kids' THEN 'Do not Want Kids'
+        WHEN Preference.children = 'nan' THEN 'nan'
+        ELSE 'Other Preferences'
+    END AS children_preference,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY strftime('%Y', Profile.time)), 2) AS percentage
+FROM 
+    Profile
+JOIN 
+    Preference ON Profile.user_id = Preference.user_id
+GROUP BY 
+    registration_year, children_preference
+ORDER BY 
+    registration_year, children_preference;
+</sql><sql name="5">-- obtaining insight that, over years, what is the most frequent pet preference and what is the percentage of that
+
+SELECT 
+    registration_year,
+    pet_preference,
+    max_percentage
+FROM (
+    SELECT 
+        strftime('%Y', Profile.time) AS registration_year,
+        Preference.pet AS pet_preference,
+        ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY strftime('%Y', Profile.time)), 2) AS max_percentage,
+        RANK() OVER (PARTITION BY strftime('%Y', Profile.time) ORDER BY COUNT(*) DESC) as rank
+    FROM 
+        Profile
+    JOIN 
+        Preference ON Profile.user_id = Preference.user_id
+    GROUP BY 
+        registration_year, pet_preference
+)
+WHERE rank = 1
+ORDER BY 
+    registration_year;</sql><sql name="6">-- obtaining insight that, over years, what are the most frequent job preferences and what are the percentages of that
+
+SELECT 
+    registration_year,
+    job_preference,
+    percentage AS max_percentage
+FROM (
+    SELECT 
+        strftime('%Y', Profile.time) AS registration_year,
+        COALESCE(Preference.job, 'No preference') AS job_preference,
+        ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY strftime('%Y', Profile.time)), 2) AS percentage,
+        RANK() OVER (PARTITION BY strftime('%Y', Profile.time) ORDER BY COUNT(*) DESC) as rank
+    FROM 
+        Profile
+    JOIN 
+        Preference ON Profile.user_id = Preference.user_id
+    GROUP BY 
+        registration_year, job_preference
+)
+WHERE rank = 1
+ORDER BY 
+    registration_year;
+</sql><sql name="7">-- obtaining insight that, over years, what is the most frequent combination of drink/smoke/drugs preference and what is the percentage of that most frequent combination
+
+SELECT 
+    registration_year,
+    drink_preference,
+    smoke_preference,
+    drugs_preference,
+    MAX(percentage) AS max_percentage
+FROM (
+    SELECT 
+        strftime('%Y', Profile.time) AS registration_year,
+        CASE WHEN COALESCE(Preference.drinks, 'nan') = 'nan' THEN 'never' ELSE Preference.drinks END AS drink_preference,
+        CASE WHEN COALESCE(Preference.smoke, 'nan') = 'nan' THEN 'never' ELSE Preference.smoke END AS smoke_preference,
+        CASE WHEN COALESCE(Preference.drugs, 'nan') = 'nan' THEN 'never' ELSE Preference.drugs END AS drugs_preference,
+        ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY strftime('%Y', Profile.time)), 2) AS percentage
+    FROM 
+        Profile
+    JOIN 
+        Preference ON Profile.user_id = Preference.user_id
+    GROUP BY 
+        registration_year, drink_preference, smoke_preference, drugs_preference
+)
+GROUP BY 
+    registration_year
+ORDER BY 
+    registration_year;
+</sql><sql name="8">-- obtaining insight that, over years,  what the sexual language preference of the users are like
+
+SELECT 
+    strftime('%Y', Profile.time) AS registration_year,
+    CASE
+        WHEN Preference.languanges LIKE '%english%' AND Preference.languanges NOT LIKE '%,%' THEN 'Only English'
+        ELSE 'Multilingual'
+    END AS language_preference,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY strftime('%Y', Profile.time)), 2) AS percentage
+FROM 
+    Profile
+JOIN 
+    Preference ON Profile.user_id = Preference.user_id
+GROUP BY 
+    registration_year, language_preference
+ORDER BY 
+    registration_year, language_preference;
+</sql><current_tab id="8"/></tab_sql></sqlb_project>
